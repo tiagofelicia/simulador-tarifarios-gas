@@ -1,0 +1,35 @@
+# .github/workflows/update_mibgas_data.yml
+name: Atualizar Dados MIBGAS Automaticamente
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 8 * * *'
+
+jobs:
+  update-excel-file:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python 3.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.9
+
+      - name: Instalar dependências
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Executar script de atualização de dados
+        run: python update_mibgas_data.py
+
+      - name: Commit e Push dos dados atualizados
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "📊 Dados MIBGAS atualizados automaticamente"
+          file_pattern: MIBGAS.xlsx
+          commit_user_name: GitHub Actions Bot
+          commit_user_email: actions@github.com
