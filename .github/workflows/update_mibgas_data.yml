@@ -1,10 +1,15 @@
-# .github/workflows/update_mibgas_data.yml
+# .github/workflows/update_data.yml
 name: Atualizar Dados MIBGAS Automaticamente
 
 on:
   workflow_dispatch:
   schedule:
     - cron: '0 8 * * *'
+
+# --- A CORREÇÃO ESTÁ AQUI ---
+# Concede permissões de escrita ao token do workflow para que ele possa fazer push.
+permissions:
+  contents: write
 
 jobs:
   update-excel-file:
@@ -22,7 +27,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-
+      
       - name: Executar script de atualização de dados
         run: python update_mibgas_data.py
 
