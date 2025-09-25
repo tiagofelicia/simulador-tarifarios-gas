@@ -4,9 +4,8 @@ name: Atualizar Dados MIBGAS Automaticamente
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 8 * * *'
+    - cron: '55 18 * * *'
 
-# --- A CORREÇÃO ESTÁ AQUI ---
 # Concede permissões de escrita ao token do workflow para que ele possa fazer push.
 permissions:
   contents: write
@@ -35,6 +34,6 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "📊 Dados MIBGAS atualizados automaticamente"
-          file_pattern: MIBGAS.xlsx
+          file_pattern: Tarifarios_🔥_Gas_Natural_Tiago_Felicia.xlsx
           commit_user_name: GitHub Actions Bot
           commit_user_email: actions@github.com
