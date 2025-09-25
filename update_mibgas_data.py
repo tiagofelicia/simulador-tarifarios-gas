@@ -198,7 +198,7 @@ def criar_dataframe_mibgas_completo():
 # --- Bloco Principal de Execução ---
 if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    EXCEL_FILE_PATH = os.path.join(script_dir, 'MIBGAS.xlsx')
+    EXCEL_FILE_PATH = os.path.join(script_dir, 'Tarifarios_🔥_Gas_Natural_TiagoFelicia.xlsx')
     
     print(f"Iniciando a automação de dados MIBGAS... Ficheiro alvo: {EXCEL_FILE_PATH}")
     gwdes_df_novo, ultima_data_spot = criar_dataframe_mibgas_completo()
@@ -211,19 +211,19 @@ if __name__ == "__main__":
 
         try:
             with pd.ExcelWriter(EXCEL_FILE_PATH, engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
-                gwdes_df_novo.to_excel(writer, sheet_name='GWDES', index=False)
+                gwdes_df_novo.to_excel(writer, sheet_name='MIBGAS', index=False)
                 if info_df is not None:
                     info_df.to_excel(writer, sheet_name='Info', index=False)
-            print(f"\n✅ Ficheiro '{os.path.basename(EXCEL_FILE_PATH)}' atualizado com sucesso nas abas 'GWDES' e 'Info'.")
+            print(f"\n✅ Ficheiro '{os.path.basename(EXCEL_FILE_PATH)}' atualizado com sucesso nas abas 'MIBGAS' e 'Info'.")
         
         except FileNotFoundError:
             print(f"\n⚠️ Aviso: O ficheiro '{os.path.basename(EXCEL_FILE_PATH)}' não foi encontrado. A criar um novo ficheiro...")
             try:
                 with pd.ExcelWriter(EXCEL_FILE_PATH, engine='openpyxl') as writer:
-                    gwdes_df_novo.to_excel(writer, sheet_name='GWDES', index=False)
+                    gwdes_df_novo.to_excel(writer, sheet_name='MIBGAS', index=False)
                     if info_df is not None:
                         info_df.to_excel(writer, sheet_name='Info', index=False)
-                print(f"\n✅ Ficheiro '{os.path.basename(EXCEL_FILE_PATH)}' criado com sucesso com as abas 'GWDES' e 'Info'.")
+                print(f"\n✅ Ficheiro '{os.path.basename(EXCEL_FILE_PATH)}' criado com sucesso com as abas 'MIBGAS' e 'Info'.")
             except Exception as e:
                 print(f"\n❌ ERRO ao criar o novo ficheiro Excel: {e}")
         except Exception as e:
