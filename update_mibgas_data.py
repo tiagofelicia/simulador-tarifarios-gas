@@ -198,7 +198,7 @@ def criar_dataframe_mibgas_completo():
 # --- Bloco Principal de Execução ---
 if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    EXCEL_FILE_PATH = os.path.join(script_dir, 'Tarifarios_🔥_Gas_Natural_TiagoFelicia.xlsx')
+    EXCEL_FILE_PATH = os.path.join(script_dir, 'Tarifarios_🔥_Gas_Natural_Tiago_Felicia.xlsx')
     
     print(f"Iniciando a automação de dados MIBGAS... Ficheiro alvo: {EXCEL_FILE_PATH}")
     gwdes_df_novo, ultima_data_spot = criar_dataframe_mibgas_completo()
