@@ -823,7 +823,7 @@ with col_mes:
         list(dias_mes.keys()), 
         key="sel_mes_gas", 
         on_change=sincronizar_datas_pelo_mes,
-        help="Selecione um mês para preencher automaticamente as datas."
+        help="Selecione um mês para preencher automaticamente as datas. Se o mês escolhido já tiver terminado, o valor do MIBGAS é final, se ainda estiver em curso será com Futuros."
     )
 
 data_minima_permitida = datetime.date(2025, 1, 1)
@@ -836,7 +836,8 @@ with col_data_i:
         max_value=data_maxima_permitida, 
         format="DD/MM/YYYY", 
         key="data_inicio_key_input_gas", 
-        on_change=sincronizar_mes_pelas_datas
+        on_change=sincronizar_mes_pelas_datas,
+        help="A partir de 01/01/2025. Se não modificar as datas ou o mês, será calculado a partir do dia seguinte ao atual."
     )
 with col_data_f:
     data_fim = st.date_input(
@@ -845,7 +846,8 @@ with col_data_f:
         max_value=data_maxima_permitida, 
         format="DD/MM/YYYY", 
         key="data_fim_key_input_gas", 
-        on_change=sincronizar_mes_pelas_datas
+        on_change=sincronizar_mes_pelas_datas,
+        help="De Data Inicial a 30/09/2026. Se não modificar as datas ou o mês, será calculado até um mês após a data inicial."
     )
 
 # A lógica de cálculo dos dias lê os valores diretamente dos widgets
@@ -861,7 +863,8 @@ with col_dias_man:
         min_value=1, 
         value=dias_default_calculado, 
         step=1, 
-        key="dias_manual_input_key_gas"
+        key="dias_manual_input_key_gas",
+        help="Pode alterar os dias de forma manual, mas dê preferência às datas ou mês, para ter dados mais fidedignos nos tarifários indexados."
     )
 
 # Decisão final sobre o número de dias a usar
@@ -954,8 +957,6 @@ with st.expander("📊 Ver Gráfico de Evolução dos Preços Médios Diários M
         st.warning("A data de referência para os valores MIBGAS não está definida na aba 'Info' do ficheiro Excel.")
 # --- FIM DO BLOCO DO GRÁFICO MIBGAS ---
 
-st.markdown("---")
-
 # --- BLOCO DE INPUTS DE GÁS ---
 st.markdown("##### Defina o seu perfil de consumo")
 
@@ -974,7 +975,8 @@ with col_esc:
         options=list(escalao_map.keys()),
         index=0, # Default para Escalão 1
         key="sel_escalao_gas_key",
-        on_change=atualizar_consumo_default_gas
+        on_change=atualizar_consumo_default_gas,
+        help="Indique o seu **Escalão de Consumo** (pode encontrá-lo na sua fatura)"
     )
     escalao_num = escalao_map[escalao_selecionado_str]
 
@@ -989,10 +991,11 @@ with col_mun:
         default_index_municipio = 0
         
     municipio_selecionado = st.selectbox(
-        "Selecione o seu Município",
+        "⚠️ Selecione o seu Município",
         options=lista_municipios,
         key="sel_municipio_tos",
-        on_change=atualizar_url_municipio
+        on_change=atualizar_url_municipio,
+        help="O **Município** é essencial para calcular corretamente a Taxa de Ocupação do Subsolo (TOS)."
     )
 
 # --- Mostrar o CUR correspondente ---
@@ -1012,7 +1015,8 @@ input_mode = st.radio(
     "Como prefere inserir o consumo?",
     ["Consumo (kWh)", "Consumo (m³)"],
     horizontal=True, index=0, key="gas_input_mode",
-    on_change=atualizar_url_consumo_gas
+    on_change=atualizar_url_consumo_gas,
+    help="**Consumo (kWh):** O valor final de energia que aparece na sua fatura. **Consumo (m³):** O volume de gás consumido, que também encontra na fatura. Terá de indicar o **Fator de Conversão (PCS)**, que converte m³ para kWh"
 )
 
 consumo_kwh = 0
@@ -1088,7 +1092,7 @@ with st.expander("➕ Opções Adicionais de Simulação (Gás Natural)"):
         format="%.6f", 
         key="gas_isp_manual_input",
         on_change=atualizar_url_opcoes_adicionais_gas,
-        help=f"Imposto Especial de Consumo (ISP). Default ({isp_gas_default}) das Constantes."
+        help=f"Imposto Especial de Consumo (ISP). Default ({isp_gas_default})."
     )
     # TS Condicional
     if escalao_num in [1, 2]:
@@ -1103,13 +1107,18 @@ with st.expander("➕ Opções Adicionais de Simulação (Gás Natural)"):
     st.markdown("##### Parcerias e Descontos Específicos")
     col_op1, col_op2 = st.columns(2)
     with col_op1:
-        acp_gas = st.checkbox("Incluir quota ACP", key="chk_acp_gas", value=True, on_change=atualizar_url_opcoes_adicionais_gas)
+        acp_gas = st.checkbox("Incluir quota ACP", key="chk_acp_gas", value=True, on_change=atualizar_url_opcoes_adicionais_gas, help="Inclui o valor da quota do ACP (4,80 €/mês) no valor do tarifário da parceria GE/ACP.",)
     with col_op2:
-        desconto_continente_gas = st.checkbox("Desconto Continente", key="chk_cont_gas", value=True, on_change=atualizar_url_opcoes_adicionais_gas)
+        desconto_continente_gas = st.checkbox("Desconto Continente", key="chk_cont_gas", value=True, on_change=atualizar_url_opcoes_adicionais_gas, help="Comparar o custo total incluindo o desconto do valor do cupão Continente no tarifário Galp&Continente.")
 
 
 # --- "O Meu Tarifário" de Gás ---
-meu_tarifario_gas_ativo = st.checkbox("**Comparar com O Meu Tarifário de Gás Natural?**", key="chk_meu_tarifario_gas_ativo", on_change=atualizar_url_meu_tarifario_gas)
+help_O_Meu_Tarifario_Gas = """
+Para preencher os valores de acordo com o seu tarifário, ou com outro qualquer que queira comparar.
+
+**Atenção às notas sobre as TAR.**
+    """
+meu_tarifario_gas_ativo = st.checkbox("**Comparar com O Meu Tarifário de Gás Natural?**", key="chk_meu_tarifario_gas_ativo", on_change=atualizar_url_meu_tarifario_gas, help=help_O_Meu_Tarifario_Gas)
 
 if meu_tarifario_gas_ativo:
     with st.container(border=True):
@@ -1140,10 +1149,15 @@ if meu_tarifario_gas_ativo:
             st.number_input("Acréscimo Fatura (€)", min_value=0.0, step=0.01, format="%.2f", key="meu_gas_acrescimo_fatura_eur", on_change=atualizar_url_meu_tarifario_gas)
 
 # --- BLOCO DO TARIFÁRIO PERSONALIZADO ---
+help_Personalizado_Gas = """
+Crie tarifário personalizado para comparar com os seus consumos. Ideal para comparar outro tarifário extra. Não permite descontos e acréscimos que existem em 'O Meu Tarifário'.
+
+**Atenção às notas sobre as TAR.**
+    """
 personalizado_gas_ativo = st.checkbox(
     "**Comparar outro Tarifário Personalizado? (simplificado)**",
     key="chk_pers_gas_ativo", on_change=atualizar_url_tarifario_personalizado_gas,
-    help="Crie um tarifário personalizado simples para comparar (não permite descontos)."
+    help=help_Personalizado_Gas
 )
 
 if personalizado_gas_ativo:
@@ -1207,7 +1221,7 @@ with filt_col1:
         opcoes_filtro_segmento_user, 
         index=st.session_state.get("filter_segmento_gas_idx", default_index_segmento), # Usa o índice de "Residencial"
         key="filter_segmento_gas_selectbox",
-        help="Escolha o segmento (Requer coluna 'segmento' no Excel)"
+        help="Escolha o segmento para a simulação."
     )
     st.session_state.filter_segmento_gas_idx = opcoes_filtro_segmento_user.index(selected_segmento_user)
 
@@ -1218,7 +1232,7 @@ with filt_col2:
     help_text_formatado_gas = """
     Deixe em branco para mostrar todos os tipos.
     * **Fixo**: Preço de energia constante.
-    * **Indexado**: Preço baseado no MIBGAS + Margem.
+    * **Indexado**: Preço da energia baseado na média do MIBGAS para o período.
     """
     selected_tipos = st.multiselect("Tipo(s) de Tarifário", tipos_options_ms,
                                   default=st.session_state.get("filter_tipos_gas_multi", []),
@@ -1233,7 +1247,7 @@ with filt_col3:
         opcoes_faturacao_user,
         index=st.session_state.get("filter_faturacao_gas_idx", 0), # Default "Todas"
         key="filter_faturacao_gas_selectbox",
-        help="Requer coluna 'faturacao' no Excel"
+        help="Escolha o tipo de faturação pretendido."
     )
     st.session_state.filter_faturacao_gas_idx = opcoes_faturacao_user.index(selected_faturacao_user)
 
@@ -1245,7 +1259,7 @@ with filt_col4:
         opcoes_pagamento_user,
         index=st.session_state.get("filter_pagamento_gas_idx", 0), # Default "Todos"
         key="filter_pagamento_gas_selectbox",
-        help="Requer coluna 'pagamento' no Excel"
+        help="Escolha o método de pagamento."
     )
     st.session_state.filter_pagamento_gas_idx = opcoes_pagamento_user.index(selected_pagamento_user)
 # --- FIM: UI DE FILTRO ---
