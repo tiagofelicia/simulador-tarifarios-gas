@@ -245,3 +245,29 @@ def calcular_medias_omie_para_todos_ciclos(df_consumos_periodo, df_omie_completo
             for periodo, media in agrupado.items():
                 omie_medios[f"{ciclo}_{periodo}"] = media
     return omie_medios
+
+def normalizar_para_ordenacao(texto):
+    """
+    Remove acentos de um texto e converte para minúsculas para criar uma
+    chave de ordenação alfabética que funciona de forma consistente.
+    Ex: 'Évora' -> 'evora'
+    """
+    if not isinstance(texto, str):
+        return texto
+
+    # Dicionário de substituição de caracteres
+    substituicoes = {
+        'á': 'a', 'à': 'a', 'ã': 'a', 'â': 'a',
+        'é': 'e', 'ê': 'e',
+        'í': 'i',
+        'ó': 'o', 'ô': 'o', 'õ': 'o',
+        'ú': 'u', 'ü': 'u',
+        'ç': 'c',
+    }
+    
+    texto_lower = texto.lower()
+    texto_normalizado = ""
+    for char in texto_lower:
+        texto_normalizado += substituicoes.get(char, char)
+        
+    return texto_normalizado
