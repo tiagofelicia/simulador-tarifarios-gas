@@ -6,6 +6,8 @@ import os
 import json
 import io
 import time
+import locale
+
 from bs4 import BeautifulSoup
 from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
 from openpyxl.utils import get_column_letter
@@ -32,6 +34,12 @@ st.set_page_config(page_title="Simulador de Tarifários Gás Natural 2025: Poupe
 
 # --- Carregar Dados ---
 url_excel = "https://github.com/tiagofelicia/simulador-tarifarios-gas/raw/refs/heads/main/Tarifarios_%F0%9F%94%A5_Gas_Natural_Tiago_Felicia.xlsx"
+
+# Configura a ordenação para seguir as regras do Português
+try:
+    locale.setlocale(locale.LC_COLLATE, 'pt_PT.UTF-8')
+except locale.Error:
+    st.warning("Aviso: O 'locale' Português não está instalado no sistema. A ordenação de municípios com acentos pode não estar correta.")
 
 try:
     (
@@ -972,7 +980,7 @@ with col_esc:
 
 with col_mun:
     # --- Definir default para o 10º item ---
-    lista_municipios = sorted(tos_municipios['Município'].dropna().unique())
+    lista_municipios = sorted(tos_municipios['Município'].dropna().unique(), key=locale.strxfrm)
     
     # Definir o 10º item (índice 9) como padrão
     default_index_municipio = 9 
