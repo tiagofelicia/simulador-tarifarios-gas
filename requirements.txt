@@ -1,6 +1,16 @@
-pandas
+# Ficheiro: requirements.txt (na pasta raiz)
+
+# --- Dependências do Simulador Streamlit ---
+streamlit==1.45.0
+streamlit-aggrid==1.1.4.post1
+
+# --- Dependências do Script de Dados (update_mibgas_data.py) ---
 requests
-numpy
-openpyxl
 selenium
 lxml
+
+# --- Dependências Comuns a Ambos ---
+pandas==2.2.3
+numpy
+openpyxl
+beautifulsoup4
