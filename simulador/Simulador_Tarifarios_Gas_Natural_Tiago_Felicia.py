@@ -76,15 +76,15 @@ def inicializar_estado_e_url_gas():
     lista_municipios_validos = sorted(tos_municipios['Município'].dropna().unique())
     
     # 2. Ler Escalão do URL, ou usar default
-    escalao_url = st.query_params.get("esc")
-    if escalao_url and escalao_url.isdigit() and int(escalao_url) in [1, 2, 3, 4]:
-        # Encontrar o nome do escalão correspondente ao número
-        for nome, num in escalao_map.items():
-            if num == int(escalao_url):
-                st.session_state.sel_escalao_gas_key = nome
-                break
+    escalao_codigo_url = st.query_params.get("esc") # Pega o código, ex: "E4"
+    nome_longo_escalao = MAPA_URL_PARA_ESCALAO.get(escalao_codigo_url) # Procura "E4" no dicionário e devolve o nome completo
+
+    # Se encontrou um nome de escalão correspondente no dicionário, usa-o.
+    if nome_longo_escalao:
+        st.session_state.sel_escalao_gas_key = nome_longo_escalao
     else:
-        st.session_state.sel_escalao_gas_key = "Escalão 1 (Consumo até 220 m³/ano)" # Default
+        # Caso contrário (parâmetro inválido ou ausente), usa o default.
+        st.session_state.sel_escalao_gas_key = "Escalão 1 (Consumo até 220 m³/ano)"
 
     # 3. Ler Município do URL, ou usar default
     municipio_url = st.query_params.get("mun")
