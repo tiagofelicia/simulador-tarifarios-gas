@@ -5,18 +5,15 @@ import requests
 import numpy as np
 import datetime
 from calendar import monthrange
-from io import BytesIO
+from io import BytesIO, StringIO
 import time
 import re
 import warnings
 import os
 
-# --- NOVOS IMPORTS PARA O SELENIUM ---
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
 
-# Ignorar avisos de SSL
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 warnings.simplefilter('ignore', InsecureRequestWarning)
 
@@ -24,31 +21,21 @@ HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
 }
 
-# --- NOVA FUNÇÃO HELPER PARA USAR O SELENIUM ---
 def get_html_with_selenium(url):
-    """
-    Usa o Selenium para abrir uma página, esperar pelo JavaScript, e devolver o HTML completo.
-    """
     print("  > A usar o Selenium para obter o HTML completo (executa JavaScript)...")
     chrome_options = Options()
-    chrome_options.add_argument("--headless") # Executar sem abrir janela gráfica
-    chrome_options.add_argument("--no-sandbox") # Necessário para o ambiente do GitHub Actions
-    chrome_options.add_argument("--disable-dev-shm-usage") # Necessário para o ambiente do GitHub Actions
-    
-    # O webdriver será encontrado automaticamente no PATH que a Action do GitHub configura
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
     driver = webdriver.Chrome(options=chrome_options)
-    
     try:
         driver.get(url)
-        # Espera 3 segundos para dar tempo ao JavaScript de carregar e construir as tabelas
         time.sleep(3) 
         html_content = driver.page_source
         print("  > Sucesso! HTML completo obtido.")
         return html_content
     finally:
-        # Garante que o navegador é sempre fechado
         driver.quit()
-
 
 def fetch_mibgas_spot_data():
     print("A procurar dados SPOT MIBGAS (da aba MIBGAS Indexes)...")
@@ -92,15 +79,13 @@ def fetch_omip_gas_futures_data():
         url_omip = f"https://www.omip.pt/pt/dados-mercado?date={date_str}&product=NG&zone=ES&instrument=FGE"
         try:
             print(f"  > A tentar obter dados para a data: {date_str}...")
-            
-            # --- MUDANÇA PRINCIPAL: Usar Selenium em vez de requests ---
             html_completo = get_html_with_selenium(url_omip)
-            list_of_tables = pd.read_html(html_completo, header=[0, 1])
-            # --- FIM DA MUDANÇA ---
+            
+            # MUDANÇA: Usar StringIO para resolver o FutureWarning
+            list_of_tables = pd.read_html(StringIO(html_completo), header=[0, 1])
             
             if list_of_tables:
                 print(f"  > Sucesso! Encontradas {len(list_of_tables)} tabelas com dados para {date_str}.")
-                # ... o resto da função continua exatamente igual ...
                 for df_table in list_of_tables:
                     if df_table.empty: continue
                     try:
@@ -225,4 +210,5 @@ if __name__ == "__main__":
             print(f"\n❌ ERRO ao escrever no ficheiro Excel: {e}")
     else:
         print("\n⚠️ Aviso: Nenhum dado foi gerado, o ficheiro Excel não foi modificado.")
+
 
