@@ -1,12 +1,11 @@
-# .github/workflows/update_data.yml
+# .github/workflows/update_mibgas_data.yml
 name: Atualizar Dados MIBGAS Automaticamente
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '55 18 * * *'
+    - cron: '55 18 * * *' # Mantido o horário mais tardio, por segurança
 
-# Concede permissões de escrita ao token do workflow para que ele possa fazer push.
 permissions:
   contents: write
 
@@ -16,6 +15,10 @@ jobs:
     steps:
       - name: Checkout do repositório
         uses: actions/checkout@v4
+
+      # NOVO: Instala o navegador Google Chrome para o Selenium usar
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@latest
 
       - name: Configurar Python 3.9
         uses: actions/setup-python@v5
