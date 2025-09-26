@@ -11,14 +11,43 @@ import re
 import warnings
 import os
 
+# --- NOVOS IMPORTS PARA O SELENIUM ---
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+
 # Ignorar avisos de SSL
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 warnings.simplefilter('ignore', InsecureRequestWarning)
 
-# NOVO: "Disfarce" para imitar um navegador e evitar bloqueios ou conteúdo simplificado
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
 }
+
+# --- NOVA FUNÇÃO HELPER PARA USAR O SELENIUM ---
+def get_html_with_selenium(url):
+    """
+    Usa o Selenium para abrir uma página, esperar pelo JavaScript, e devolver o HTML completo.
+    """
+    print("  > A usar o Selenium para obter o HTML completo (executa JavaScript)...")
+    chrome_options = Options()
+    chrome_options.add_argument("--headless") # Executar sem abrir janela gráfica
+    chrome_options.add_argument("--no-sandbox") # Necessário para o ambiente do GitHub Actions
+    chrome_options.add_argument("--disable-dev-shm-usage") # Necessário para o ambiente do GitHub Actions
+    
+    # O webdriver será encontrado automaticamente no PATH que a Action do GitHub configura
+    driver = webdriver.Chrome(options=chrome_options)
+    
+    try:
+        driver.get(url)
+        # Espera 3 segundos para dar tempo ao JavaScript de carregar e construir as tabelas
+        time.sleep(3) 
+        html_content = driver.page_source
+        print("  > Sucesso! HTML completo obtido.")
+        return html_content
+    finally:
+        # Garante que o navegador é sempre fechado
+        driver.quit()
 
 
 def fetch_mibgas_spot_data():
@@ -64,19 +93,15 @@ def fetch_omip_gas_futures_data():
         try:
             print(f"  > A tentar obter dados para a data: {date_str}...")
             
-            # --- MUDANÇA PRINCIPAL ---
-            # Primeiro, usamos o requests para obter o conteúdo da página com o nosso disfarce
-            response_omip = requests.get(url_omip, headers=HEADERS, timeout=30)
-            response_omip.raise_for_status()
-
-            # Depois, passamos o conteúdo HTML (response_omip.text) para o pandas ler as tabelas
-            list_of_tables = pd.read_html(response_omip.text, header=[0, 1])
+            # --- MUDANÇA PRINCIPAL: Usar Selenium em vez de requests ---
+            html_completo = get_html_with_selenium(url_omip)
+            list_of_tables = pd.read_html(html_completo, header=[0, 1])
             # --- FIM DA MUDANÇA ---
             
             if list_of_tables:
                 print(f"  > Sucesso! Encontradas {len(list_of_tables)} tabelas com dados para {date_str}.")
+                # ... o resto da função continua exatamente igual ...
                 for df_table in list_of_tables:
-                    # ... o resto da função continua exatamente igual ...
                     if df_table.empty: continue
                     try:
                         df_table.columns = ['_'.join(map(str, col)).strip() for col in df_table.columns.values]
@@ -102,7 +127,7 @@ def fetch_omip_gas_futures_data():
                         continue
                 if all_processed_futures: break
         except Exception as e:
-            print(f"  > Não foram encontrados dados para {date_str}. Tentando o dia anterior...")
+            print(f"  > Não foram encontrados dados para {date_str} ou erro no Selenium. Tentando o dia anterior... Erro: {e}")
             continue
     if not all_processed_futures:
         print("  > Nenhuma tabela de futuros encontrada no OMIP nos últimos 7 dias.")
@@ -110,8 +135,6 @@ def fetch_omip_gas_futures_data():
     print(f"  > Total de {len(all_processed_futures)} produtos de futuros encontrados e processados em todas as tabelas.")
     return all_processed_futures
 
-# ... O resto do seu ficheiro (parse_omip_product_name, criar_dataframe_mibgas_completo, e o bloco __main__) continua exatamente igual ...
-# (código omitido para brevidade, não precisa de o alterar)
 def parse_omip_product_name(product_name, today):
     month_map = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6, 'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12}
     product_name = str(product_name).strip()
@@ -202,3 +225,4 @@ if __name__ == "__main__":
             print(f"\n❌ ERRO ao escrever no ficheiro Excel: {e}")
     else:
         print("\n⚠️ Aviso: Nenhum dado foi gerado, o ficheiro Excel não foi modificado.")
+
