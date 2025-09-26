@@ -3,3 +3,4 @@ requests
 numpy
 openpyxl
 selenium
+lxml
