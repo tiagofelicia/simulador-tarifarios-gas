@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import datetime
 from calendar import monthrange
+import requests
+import io
 
 # --- Carregar ficheiro Excel do GitHub ---
 # --- Para simulador de gás
@@ -38,27 +40,37 @@ def carregar_dados_excel_gas(url):
 
 # --- Carregar ficheiro Excel do GitHub ---
 # --- Para simulador de eletricidade
-@st.cache_data(ttl=1800, show_spinner=False) # Cache por 30 minutos (1800 segundos)
+@st.cache_data(ttl=1800, show_spinner=False)
 def carregar_dados_excel_elec(url):
-    xls = pd.ExcelFile(url)
+    """
+    Carrega os dados do ficheiro Excel de eletricidade a partir de um URL.
+    Usa 'requests' para descarregar e o motor 'calamine' para ler de forma robusta.
+    """
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        excel_file_in_memory = io.BytesIO(response.content)
+        xls = pd.ExcelFile(excel_file_in_memory, engine='calamine')
+        
+    except requests.exceptions.RequestException as e:
+        st.error(f"Erro ao descarregar o ficheiro Excel do GitHub: {e}")
+        return pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
+
     tarifarios_fixos = xls.parse("Tarifarios_fixos")
     tarifarios_indexados = xls.parse("Indexados")
     omie_perdas_ciclos = xls.parse("OMIE_PERDAS_CICLOS")
 
-    # Limpar nomes das colunas em OMIE_PERDAS_CICLOS
     omie_perdas_ciclos.columns = [str(c).strip() for c in omie_perdas_ciclos.columns]
     
-    # GARANTIR QUE TEMOS COLUNAS DE DATA E HORA SEPARADAS
     if 'Data' not in omie_perdas_ciclos.columns and 'DataHora' in omie_perdas_ciclos.columns:
         temp_dt = pd.to_datetime(omie_perdas_ciclos['DataHora'])
         omie_perdas_ciclos['Data'] = temp_dt.dt.strftime('%m/%d/%Y')
         omie_perdas_ciclos['Hora'] = temp_dt.dt.strftime('%H:%M')
 
     if 'Data' in omie_perdas_ciclos.columns and 'Hora' in omie_perdas_ciclos.columns:
-        # CORREÇÃO: Forçar a leitura com o formato exato MM/DD/YYYY HH:MM
         omie_perdas_ciclos['DataHora'] = pd.to_datetime(
             omie_perdas_ciclos['Data'].astype(str) + ' ' + omie_perdas_ciclos['Hora'].astype(str),
-            format='%m/%d/%Y %H:%M',  # Formato Americano
+            format='%m/%d/%Y %H:%M',
             errors='coerce'
         ).dt.tz_localize(None)
         
@@ -69,6 +81,7 @@ def carregar_dados_excel_elec(url):
 
     constantes = xls.parse("Constantes")
     return tarifarios_fixos, tarifarios_indexados, omie_perdas_ciclos, constantes
+
 
 
 def processar_ficheiro_consumos(ficheiro_excel):

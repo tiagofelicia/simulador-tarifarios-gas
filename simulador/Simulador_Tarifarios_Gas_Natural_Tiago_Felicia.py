@@ -699,6 +699,10 @@ with st.expander("❔ Perguntas Frequentes (FAQ)", expanded=False):
     
     **R:** Todos os dados dos tarifários são recolhidos a partir das informações públicas disponibilizadas pelos comercializadores nos seus websites. Os preços do mercado ibérico de gás (MIBGAS) são obtidos de fontes oficiais. Os dados são atualizados regularmente para refletir as condições atuais do mercado.
 
+    **P: Tenho um tarifário com o mesmo nome que o do simulador, mas tem valores diferentes na energia e/ou termo fixo, porquê?**
+    
+    **R:** Muitos comercializadores alteram os valores nos seus tarifários mas mantêm as denominações dos mesmos. Este simulador só tem os valores para a última versão do tarifário.
+
     **P: O simulador é 100% preciso?**
     
     **R:** O objetivo é ser o mais preciso possível. Para tarifários **fixos**, a precisão é muito elevada. Para tarifários **indexados**, o custo final é uma estimativa baseada nos preços médios do MIBGAS para o período selecionado. Variações diárias no preço do gás podem levar a pequenas diferenças no custo final.
@@ -739,15 +743,36 @@ with st.expander("❔ Perguntas Frequentes (FAQ)", expanded=False):
 
     **R:** Os dados são atualizados regularmente para refletir as alterações nos preçários dos comercializadores e as variações do mercado de gás (MIBGAS). Pode consultar a data da última atualização dos valores de mercado na secção **"Datas de Referência"**, no final da página.                    
 
+    **P: Como são tratados descontos especiais como os do ACP ou Continente?**
+    
+    **R:** O simulador tenta replicar as condições comerciais o mais fielmente possível. Para a parceria **Goldenergy/ACP**, pode optar por incluir o valor da quota mensal no custo final. Para os tarifários **Galp/Continente**, o simulador calcula o valor do desconto em Cartão Continente e subtrai-o ao custo total, refletindo a poupança real na sua carteira. Pode ativar ou desativar estas opções na secção "Opções Adicionais de Simulação".                
+
     **P: O que está incluído no "Total Período (€)"? É o valor final da fatura?**
     
     **R:** Sim, o valor "Total Período (€)" representa a sua fatura final estimada. Ele inclui a soma de várias componentes:
-    1.  **Custo da Energia**: O consumo (kWh) multiplicado pelo Termo de Energia (€/kWh).
-    2.  **Custo do Termo Fixo**: O Termo Fixo (€/dia) multiplicado pelo número de dias.
-    3.  **Taxas e Impostos**: A Taxa de Ocupação do Subsolo (TOS), o Imposto sobre os Produtos Petrolíferos (ISP) e o IVA (aplicado a 6% ou 23% sobre cada componente, de acordo com as regras em vigor).
-    
-    Pode ver a decomposição detalhada de todos estes custos passando o rato por cima do valor na coluna "Total Período (€)".
                 
+    1.  **Custo da Energia**: O consumo (kWh) multiplicado pelo Termo de Energia (€/kWh).
+                
+    2.  **Custo do Termo Fixo**: O Termo Fixo (€/dia) multiplicado pelo número de dias.
+                
+    3.  **Taxas e Impostos especiais**: A Taxa de Ocupação do Subsolo (TOS), o Imposto sobre os Produtos Petrolíferos (ISP).
+                
+    4.  **IVA**: O IVA é aplicado a 6% ou 23% sobre cada componente, de acordo com as regras em vigor.
+                
+    5. **Descontos/Acréscimos**: Quaisquer descontos de fatura ou acréscimos (como a quota ACP) são aplicados ao valor final.
+
+    Pode ver a decomposição detalhada de todos estes custos passando o rato por cima do valor na coluna "Total Período (€)".
+
+     **P: A tabela de resultados tem muitas opções. Como posso encontrar rapidamente o que procuro?**
+    
+    **R:** A tabela é interativa! Pode:
+
+    * **Ordenar**: Clique no cabeçalho de qualquer coluna (como "Total (€)" ou "Fixo (€/dia)") para ordenar os resultados do mais baixo para o mais alto, ou vice-versa.
+
+    * **Filtrar**: Use os filtros no topo da tabela para refinar a sua pesquisa por tipo de tarifário (Fixo, Indexado), segmento (Residencial, Empresarial), ou por opções de faturação e pagamento.
+
+    * **Pesquisar**: Na vista detalhada, pode usar a pesquisa dentro das colunas "Comercializador" e "Tarifário" para encontrar uma oferta específica.
+               
     ---
     
     ### Termos e Conceitos
@@ -2289,7 +2314,7 @@ if not linha_data_mibgas_spot.empty:
             if data_valores_mibgas_spot:
                 data_mibgas_spot_formatada_str = f"Erro ao processar valor ({data_valores_mibgas_spot})"
 
-st.markdown(f"**Valores MIBGAS (SPOT) atualizados em** {data_mibgas_spot_formatada_str}")
+st.markdown(f"**Valores MIBGAS (SPOT) atualizados até** {data_mibgas_spot_formatada_str}")
 # --- FIM DA SECÇÃO ---
 
 # --- INÍCIO DA SECÇÃO DE APOIO ---
@@ -2327,20 +2352,21 @@ st.subheader("Redes sociais, onde poderão seguir o projeto:")
 
 # URLs das redes sociais
 url_x = "https://x.com/tiagofelicia"
-url_bluesky = "https://bsky.app/profile/tiagofelicia.bsky.social"
+url_facebook = "https://www.facebook.com/profile.php?id=61555007360529"
+url_instagram = "https://www.instagram.com/tiago_felicia/"
 url_youtube = "https://youtube.com/@tiagofelicia"
-url_facebook_perfil = "https://www.facebook.com/profile.php?id=61555007360529"
-
+url_tiktok = "https://www.tiktok.com/@Tiago_Felicia"
 
 icon_url_x = "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/X_icon.svg/120px-X_icon.svg.png?20250519203220"
-icon_url_bluesky = "https://upload.wikimedia.org/wikipedia/commons/7/7a/Bluesky_Logo.svg"
-icon_url_youtube = "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/YouTube_full-color_icon_%282024%29.svg/120px-YouTube_full-color_icon_%282024%29.svg.png"
 icon_url_facebook = "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/2023_Facebook_icon.svg/120px-2023_Facebook_icon.svg.png"
+icon_url_instagram = "https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png"
+icon_url_youtube = "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/YouTube_full-color_icon_%282024%29.svg/120px-YouTube_full-color_icon_%282024%29.svg.png"
+icon_url_tiktok = "https://upload.wikimedia.org/wikipedia/commons/a/a6/Tiktok_icon.svg"
 
 
 svg_icon_style_dark_mode_friendly = "filter: invert(0.8) sepia(0) saturate(1) hue-rotate(0deg) brightness(1.5) contrast(0.8);"
 
-col_social1, col_social2, col_social3, col_social4 = st.columns(4)
+col_social1, col_social2, col_social3, col_social4, col_social5 = st.columns(5)
 
 with col_social1:
     st.markdown(
@@ -2356,15 +2382,26 @@ with col_social1:
 with col_social2:
     st.markdown(
         f"""
-        <a href="{url_bluesky}" target="_blank" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center; text-align: center;">
-            <img src="{icon_url_bluesky}" width="40" alt="Bluesky" style="margin-bottom: 8px; object-fit: contain;">
-            Bluesky
+        <a href="{url_facebook}" target="_blank" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center; text-align: center;">
+            <img src="{icon_url_facebook}" width="40" alt="Facebook" style="margin-bottom: 8px; object-fit: contain;">
+            Facebook
         </a>
         """,
         unsafe_allow_html=True
     )
 
 with col_social3:
+    st.markdown(
+        f"""
+        <a href="{url_instagram}" target="_blank" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center; text-align: center;">
+            <img src="{icon_url_instagram}" width="40" alt="Instagram" style="margin-bottom: 8px; object-fit: contain;">
+            Instagram
+        </a>
+        """,
+        unsafe_allow_html=True
+    )
+
+with col_social4:
     st.markdown(
         f"""
         <a href="{url_youtube}" target="_blank" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center; text-align: center;">
@@ -2375,23 +2412,22 @@ with col_social3:
         unsafe_allow_html=True
     )
 
-with col_social4:
+with col_social5:
     st.markdown(
         f"""
-        <a href="{url_facebook_perfil}" target="_blank" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center; text-align: center;">
-            <img src="{icon_url_facebook}" width="40" alt="Facebook" style="margin-bottom: 8px; object-fit: contain;">
-            Facebook
+        <a href="{url_tiktok}" target="_blank" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center; text-align: center;">
+            <img src="{icon_url_tiktok}" width="40" alt="Tiktok" style="margin-bottom: 8px; object-fit: contain;">
+            Tiktok
         </a>
         """,
         unsafe_allow_html=True
     )
-
 st.markdown("<br>", unsafe_allow_html=True) # Adiciona um espaço vertical
 
 # Texto de Copyright
 ano_copyright = 2025
 nome_autor = "Tiago Felícia"
-texto_copyright_html = f"© {ano_copyright} Todos os direitos reservados | {nome_autor} | <a href='{url_facebook_perfil}' target='_blank' style='color: inherit;'>Facebook</a>"
+texto_copyright_html = f"© {ano_copyright} Todos os direitos reservados | {nome_autor}"
 
 st.markdown(
     f"<div style='text-align: center; font-size: 0.9em; color: grey;'>{texto_copyright_html}</div>",
