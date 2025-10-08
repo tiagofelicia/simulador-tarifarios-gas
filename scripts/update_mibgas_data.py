@@ -181,8 +181,12 @@ def criar_dataframe_mibgas_completo():
     return df_final, ultima_data_spot
 
 if __name__ == "__main__":
+    # O diretório do script
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    EXCEL_FILE_PATH = os.path.join(script_dir, 'Tarifarios_🔥_Gas_Natural_Tiago_Felicia.xlsx')
+    # O diretório raiz do projeto (uma pasta acima da pasta 'scripts')
+    project_root = os.path.dirname(script_dir)
+    EXCEL_FILE_PATH = os.path.join(project_root, 'Tarifarios_🔥_Gas_Natural_Tiago_Felicia.xlsx')
+
     print(f"Iniciando a automação de dados MIBGAS... Ficheiro alvo: {EXCEL_FILE_PATH}")
     gwdes_df_novo, ultima_data_spot = criar_dataframe_mibgas_completo()
     if not gwdes_df_novo.empty:
