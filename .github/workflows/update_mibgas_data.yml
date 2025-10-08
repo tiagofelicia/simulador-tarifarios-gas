@@ -4,7 +4,7 @@ name: Atualizar Dados MIBGAS Automaticamente
 on:
   workflow_dispatch:
   schedule:
-    - cron: '55 18 * * *' # Mantido o horário mais tardio, por segurança
+    - cron: '55 18 * * *'
 
 permissions:
   contents: write
@@ -16,28 +16,65 @@ jobs:
       - name: Checkout do repositório
         uses: actions/checkout@v4
 
-      # NOVO: Instala o navegador Google Chrome para o Selenium usar
-      - name: Setup Chrome
-        uses: browser-actions/setup-chrome@latest
-
-      - name: Configurar Python 3.12
+      - name: Configurar Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: '3.11'
 
+      # NOVO: O seu script usa Selenium, que precisa de um navegador. Este passo instala o Chrome.
+      - name: Instalar o navegador Chrome
+        uses: browser-actions/setup-chrome@latest
 
-      - name: Instalar dependências
+      - name: Cache das dependências Python
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements_atualizacao_gas_MIBGAS.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      
+      - name: Instalar dependências Python
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements_atualizacao_gas_MIBGAS.txt
       
-      - name: Executar script de atualização de dados
-        run: python update_mibgas_data.py
+      - name: Executar script de atualização de dados com logging
+        run: |
+          mkdir -p logs
+          start_time=$(date +%s)
+          echo "=== Execução Python iniciada em $(date -d @$start_time '+%Y-%m-%d %H:%M:%S') ===" >> logs/update_mibgas_data.log
+          
+          python scripts/update_mibgas_data.py >> logs/update_mibgas_data.log 2>&1
+          
+          end_time=$(date +%s)
+          echo "=== Execução terminada em $(date -d @$end_time '+%Y-%m-%d %H:%M:%S') ===" >> logs/update_mibgas_data.log
+          runtime=$((end_time-start_time))
+          echo "Duração total: ${runtime} segundos." >> logs/update_mibgas_data.log
+          echo "" >> logs/update_mibgas_data.log
 
-      - name: Commit e Push dos dados atualizados
-        uses: stefanzweifel/git-auto-commit-action@v5
+      - name: Fazer upload do log como artefacto
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          commit_message: "📊 Dados MIBGAS atualizados automaticamente"
-          file_pattern: Tarifarios_🔥_Gas_Natural_Tiago_Felicia.xlsx
-          commit_user_name: GitHub Actions Bot
-          commit_user_email: actions@github.com
+          name: log_atualizacao_gas_MIBGAS
+          path: logs/update_mibgas_data.log
+
+      - name: Verificar se houve alterações
+        id: git-check
+        run: |
+          # Adicionar todas as alterações (ficheiro Excel E ficheiro de log)
+          git add -A
+          if git diff --cached --quiet;
+          then
+            echo "changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit e push se houver alterações
+        if: steps.git-check.outputs.changes == 'true'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "🔥 Dados MIBGAS atualizados automaticamente"
+          git push
