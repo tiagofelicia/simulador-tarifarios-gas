@@ -427,3 +427,23 @@ Série temporal de preços MIBGAS criada com sucesso.
 === Execução terminada em 2025-10-19 18:58:53 ===
 Duração total: 18 segundos.
 
+=== Execução Python iniciada em 2025-10-20 18:59:43 ===
+Iniciando a automação de dados MIBGAS... Ficheiro alvo: /home/runner/work/simulador-tarifarios-gas/simulador-tarifarios-gas/Tarifarios_🔥_Gas_Natural_Tiago_Felicia.xlsx
+A procurar dados SPOT MIBGAS (da aba MIBGAS Indexes)...
+  > A tentar descarregar o ficheiro para o ano 2024...
+  > Sucesso! Processados 366 registos de MIBGAS Indexes para 2024.
+  > A tentar descarregar o ficheiro para o ano 2025...
+  > Sucesso! Processados 294 registos de MIBGAS Indexes para 2025.
+A procurar preços FUTUROS de gás no OMIP...
+  > A tentar obter dados para a data: 2025-10-20...
+  > A usar o Selenium para obter o HTML completo (executa JavaScript)...
+  > Sucesso! HTML completo obtido.
+  > Sucesso! Encontradas 8 tabelas com dados para 2025-10-20.
+  > Total de 28 produtos de futuros encontrados e processados em todas as tabelas.
+Série temporal de preços MIBGAS criada com sucesso.
+Última data SPOT encontrada para registar: 2025-10-21
+
+✅ Ficheiro 'Tarifarios_🔥_Gas_Natural_Tiago_Felicia.xlsx' atualizado com sucesso nas abas 'MIBGAS' e 'Info'.
+=== Execução terminada em 2025-10-20 19:00:02 ===
+Duração total: 19 segundos.
+
