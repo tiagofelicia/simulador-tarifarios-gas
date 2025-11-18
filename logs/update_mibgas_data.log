@@ -1042,3 +1042,24 @@ Série temporal de preços MIBGAS criada com sucesso.
 === Execução terminada em 2025-11-17 18:58:40 ===
 Duração total: 12 segundos.
 
+=== Execução Python iniciada em 2025-11-18 19:00:41 ===
+Iniciando a automação de dados MIBGAS... Ficheiro alvo: /home/runner/work/simulador-tarifarios-gas/simulador-tarifarios-gas/Tarifarios_🔥_Gas_Natural_Tiago_Felicia.xlsx
+A procurar dados SPOT MIBGAS (da aba MIBGAS Indexes)...
+  > A tentar descarregar o ficheiro para o ano 2024...
+  > Sucesso! Processados 366 registos de MIBGAS Indexes para 2024.
+  > A tentar descarregar o ficheiro para o ano 2025...
+  > Sucesso! Processados 323 registos de MIBGAS Indexes para 2025.
+A procurar preços FUTUROS de gás no OMIP...
+  > A tentar obter dados para a data: 2025-11-18...
+  > A usar o Selenium para obter o HTML completo (executa JavaScript)...
+  > Sucesso! HTML completo obtido.
+  > Sucesso! Encontradas 8 tabelas com dados para 2025-11-18.
+  > Aviso: Não foi possível interpretar o produto OMIP 'ISIN Code: PTFTO0440944Nominal Fixo MWH: 1Trading last day: 2025-11-19Trading quotation: €/MWh/dFGE D Th20Nov-25'. Erro: day is out of range for month
+  > Total de 26 produtos de futuros encontrados e processados em todas as tabelas.
+Série temporal de preços MIBGAS criada com sucesso.
+Última data SPOT encontrada para registar: 2025-11-19
+
+✅ Ficheiro 'Tarifarios_🔥_Gas_Natural_Tiago_Felicia.xlsx' atualizado com sucesso nas abas 'MIBGAS' e 'Info'.
+=== Execução terminada em 2025-11-18 19:00:59 ===
+Duração total: 18 segundos.
+
