@@ -64,7 +64,7 @@ jobs:
           
           # Adiciona apenas se houver alterações
           git add Tarifarios_🔥_Gas_Natural_Tiago_Felicia.xlsx
-          git commit -m "🔥 Backup MIBGAS no GitHub" || echo "Sem alterações no GitHub"
+          git commit -m "🔥 Dados MIBGAS atualizados automaticamente" || echo "Sem alterações no GitHub"
           git push origin HEAD:main || echo "Nada para fazer push no GitHub"
 
       # ---------------------------------------------------------
