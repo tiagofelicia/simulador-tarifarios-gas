@@ -81,7 +81,15 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           git remote add hf https://user:$HF_TOKEN@huggingface.co/spaces/tiagofelicia/simulador-tarifarios-gas-natural
-          git push hf main
+          
+          # Obter commits remotos
+          git fetch hf
+          
+          # Rebase dos commits locais por cima do estado remoto
+          git rebase hf/main || git rebase --skip
+          
+          # Push seguro
+          git push hf HEAD:main --force-with-lease
 
       - name: Upload do log
         if: always()
