@@ -10,10 +10,13 @@ permissions:
   contents: write
 
 jobs:
-  update-excel-file:
+  update-excel-and-push-to-hf:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout do repositório
+      # ---------------------------------------------------------
+      # PASSO 1: Preparação e Execução do Script (Igual ao original)
+      # ---------------------------------------------------------
+      - name: Checkout do repositório GitHub
         uses: actions/checkout@v4
 
       - name: Configurar Python 3.11
@@ -43,54 +46,66 @@ jobs:
           start_time=$(date +%s)
           echo "=== Execução iniciada: $(date -d @$start_time '+%Y-%m-%d %H:%M:%S') ===" >> logs/update_mibgas_data.log
 
+          # Executa o script que gera o Excel atualizado na pasta atual
           python scripts/update_mibgas_data.py >> logs/update_mibgas_data.log 2>&1
 
           end_time=$(date +%s)
           echo "=== Execução terminada: $(date -d @$end_time '+%Y-%m-%d %H:%M:%S') ===" >> logs/update_mibgas_data.log
           echo "Duração: $((end_time-start_time)) segundos" >> logs/update_mibgas_data.log
-          echo "" >> logs/update_mibgas_data.log
 
-      - name: Verificar alterações
-        id: git-check
-        run: |
-          git add -A
-          if git diff --cached --quiet; then
-            echo "changes=false" >> $GITHUB_OUTPUT
-          else
-            echo "changes=true" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Commit e push para GitHub
-        if: steps.git-check.outputs.changes == 'true'
+      # ---------------------------------------------------------
+      # PASSO 2: Atualizar o Repositório GitHub (Opcional)
+      # Se quiseres manter uma cópia no GitHub também.
+      # ---------------------------------------------------------
+      - name: Guardar alterações no GitHub (Backup)
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git commit -m "🔥 MIBGAS atualizado automaticamente"
-          git push
+          
+          # Adiciona apenas se houver alterações
+          git add Tarifarios_🔥_Gas_Natural_Tiago_Felicia.xlsx
+          git commit -m "🔥 Backup MIBGAS no GitHub" || echo "Sem alterações no GitHub"
+          git push origin HEAD:main || echo "Nada para fazer push no GitHub"
 
-      - name: Instalar Git LFS
-        if: steps.git-check.outputs.changes == 'true'
+      # ---------------------------------------------------------
+      # PASSO 3: Enviar para o Hugging Face (A Correção)
+      # ---------------------------------------------------------
+      - name: Enviar ficheiro para o Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
+          # 1. Instalar Git LFS (necessário para ficheiros binários grandes como Excel)
           sudo apt-get update
           sudo apt-get install git-lfs
           git lfs install
 
-      - name: Push automático para Hugging Face
-        if: steps.git-check.outputs.changes == 'true'
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: |
-          git remote add hf https://user:$HF_TOKEN@huggingface.co/spaces/tiagofelicia/simulador-tarifarios-gas-natural
-          
-          # Obter commits remotos
-          git fetch hf
-          
-          # Rebase dos commits locais por cima do estado remoto
-          git rebase hf/main || git rebase --skip
-          
-          # Push seguro
-          git push hf HEAD:main --force-with-lease
+          # 2. Clonar o repositório do Hugging Face numa pasta separada 'hf_repo'
+          # Usamos a depth 1 para ser mais rápido (não baixa o histórico todo)
+          git clone --depth 1 https://user:$HF_TOKEN@huggingface.co/spaces/tiagofelicia/simulador-tarifarios-gas-natural hf_repo
 
+          # 3. Copiar o ficheiro Excel GERADO para a pasta clonada
+          # O comando cp -f força a substituição
+          cp -f Tarifarios_🔥_Gas_Natural_Tiago_Felicia.xlsx hf_repo/
+
+          # 4. Entrar na pasta do Hugging Face e fazer o commit
+          cd hf_repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Garantir que o Excel é rastreado pelo LFS (caso não esteja configurado lá)
+          git lfs track "*.xlsx"
+          git add .gitattributes
+          
+          git add Tarifarios_🔥_Gas_Natural_Tiago_Felicia.xlsx
+          
+          # Commit e Push
+          # O "|| echo" impede que o workflow falhe se não houver alterações novas
+          git commit -m "🔥 Atualização automática MIBGAS via GitHub Actions" || echo "Sem alterações para enviar"
+          git push
+
+      # ---------------------------------------------------------
+      # PASSO 4: Artefactos de Log
+      # ---------------------------------------------------------
       - name: Upload do log
         if: always()
         uses: actions/upload-artifact@v4
